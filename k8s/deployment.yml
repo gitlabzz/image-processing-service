@@ -1,0 +1,69 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config
+data:
+  app.message: "Image Processing Service is Running!"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: image-processing-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      role: image-processing-service
+  template:
+    metadata:
+      labels:
+        role: image-processing-service
+    spec:
+      containers:
+        - name: image-processing-service
+          image: ln032pnxrepo01.swc/image-processor/image-processor:latest
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              memory: 1Gi
+          ports:
+            - name: http
+              containerPort: 8080
+          livenessProbe:
+            httpGet:
+              port: http
+              path: /actuator/health/liveness
+            initialDelaySeconds: 20
+            failureThreshold: 20
+            periodSeconds: 1
+          readinessProbe:
+            httpGet:
+              port: http
+              path: /actuator/health/readiness
+            initialDelaySeconds: 30
+            failureThreshold: 2
+            periodSeconds: 1
+          env:
+            # Read the ConfigMap mounted as a volume under /etc/config.
+            - name: SPRING_CONFIG_IMPORT
+              value: configtree:/etc/config/
+          volumeMounts:
+            - mountPath: /etc/config
+              name: config
+      volumes:
+        - name: config
+          configMap:
+            name: config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: image-processing-service
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    role: image-processing-service

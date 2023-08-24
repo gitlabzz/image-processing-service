@@ -59,8 +59,35 @@ curl -vv http://localhost:8080/actuator/health/liveness
 To strip Exif headers from JPEG images:
 
 ```bash
-curl -v -X POST --fail -F "file=@2O6A1463.JPG" -F "filename=2O6A1463.JPG" --output modified_2O6A1463.JPG --location http://localhost:8080/v1/image/process
-curl -v -X POST --fail -F "file=@2O6A1463.JPG" -F "filename=2O6A1463.JPG" --output modified_2O6A1463.JPG --location http://image-processing-service.example.com/image/process
+curl -v -X POST --fail -F "file=@2O6A1463.jpg" -F "filename=2O6A1463.jpg" --output modified_2O6A1463.jpg --location http://localhost:8080/v1/image/process
+curl -v -X POST --fail -F "file=@2O6A1463.jpg" -F "filename=2O6A1463.jpg" --output modified_2O6A1463.jpg --location http://image-processing-service.example.com/image/process
+
+
+curl -X POST --fail \
+  -H "Content-Type: multipart/form-data" \
+  -F "file=@2O6A1463.jpg" \
+  -F "filename=2O6A1463.jpg" \
+  -o "modified_2O6A1463.jpg" \
+  -F "userId=007553863DC30029" \
+  -F "secureKey=8b31761b2154884c" \
+  -F "alias=117" \
+  -F "userData[file-description]=March invoice" \
+  -F "userData[userKey1]=User value 1" \
+  --location http://localhost:8080/v1/image/process
+
+
+curl -X POST --fail \
+  -H "Content-Type: multipart/form-data" \
+  -F "file=@2O6A1463.jpg" \
+  -F "filename=2O6A1463.jpg" \
+  -o "modified_2O6A1463.jpg" \
+  -F "userId=007553863DC30029" \
+  -F "secureKey=8b31761b2154884c" \
+  -F "alias=117" \
+  -F "userData[file-description]=March invoice" \
+  -F "userData[userKey1]=User value 1" \
+  --location http://localhost:8080/v1/serviceNameA/chatId1/file
+
 ```
 
 To strip Exif headers from JPEG images:
